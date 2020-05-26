@@ -1,0 +1,92 @@
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>QUIZ</title>
+    <style type="text/css">
+		body{text-align: center;background-color:orange;}
+    </style>
+  </head>
+  <body>
+    <h1>QUIZ</h1>
+	
+	<h2>Domanda 1</h2>
+	<p>5*0=?</p>
+
+	<textarea name="message" rows="1" cols="30" id="d1"></textarea>
+	<br><br>
+
+	<h2>Domanda 2</h2>
+	<p>5^0=?</p>
+
+	<textarea name="message" rows="1" cols="30" id="d2"></textarea>
+	<br><br>
+
+	<h2>Domanda 3</h2>
+	<p>5*6+2=?</p>
+
+	<textarea name="message" rows="1" cols="30" id="d3"></textarea>
+	<br><br><br><br>
+	
+    <button type="button" name="button"onclick="loadDoc()">Controlla risposte</button>
+    <br><br>
+	
+	<textarea name="risultato" rows="1" cols="30" id="risultato"></textarea>
+
+    <script type="text/javascript">
+      function loadDoc(){  //funzione chiamata dal clic del bottone
+        var xhttp=new XMLHttpRequest(); //allocazione oggetto XMLHttpRequest
+
+		// onreadystatechange contiene la funzione che processerà la risposta del server
+        xhttp.onreadystatechange=function(){
+		// readyState contiene lo stato della response del server. Ogni volta che readyState cambia, la funzione onreadystatechange viene eseguita
+		// 0 La richiesta non è inizializzata
+		// 1 E' stabilita la connessione col server
+		// 2 La richiesta è ricevuta
+		// 3 La richiesta è processata
+		// 4 La richiesta è completa
+		// se status=200 OK   invece  404 Not found
+          if (this.readyState == 4 && this.status == 200) {
+          myFunction(this); //chiama myFunction
+        }
+        };
+
+		// open() ha 3 parametri:
+		//il primo definisce quale metodo usare (GET/POST)
+		//il secondo è l'url dove risiede lo script server-side
+		//il terzo (booleano) specifica che la richiesta deve essere asincrona (true=asincrona,false=sincrona)
+        xhttp.open("GET","risposte.xml", true);
+        xhttp.send();
+	}
+		
+	function myFunction(xml){
+		var i; 
+		var xmlDoc = xml.responseXML;
+		var risposta,risposta2,risposta3;
+		var x = xmlDoc.getElementsByTagName("risposte");
+		var rispcorrette=0;
+
+		for (i = 0; i <x.length; i++) { 	//ciclo iterativo 
+		risposta =x[i].getElementsByTagName("r1")[0].childNodes[0].nodeValue;
+		risposta2 =x[i].getElementsByTagName("r2")[0].childNodes[0].nodeValue;
+		risposta3 =x[i].getElementsByTagName("r3")[0].childNodes[0].nodeValue;
+		}
+
+		if(risposta==document.getElementById("d1").value){
+			rispcorrette++;
+		}
+		if(risposta2==document.getElementById("d2").value){
+			rispcorrette++;
+		}
+		if(risposta3==document.getElementById("d3").value){
+			rispcorrette++;
+		}
+		
+		document.getElementById("risultato").value=rispcorrette+" risposte corrette";
+		if(rispcorrette==3){
+			alert("Hai completato il quiz");
+		}
+	}
+
+    </script>
+  </body>
+</html>

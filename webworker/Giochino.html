@@ -1,0 +1,140 @@
+<html>
+	<head>
+		<style type="text/css">
+			body
+			{
+				background-image: url(14.jpg);
+			}
+			td
+			{
+				height: 40px;
+				width: 40px;
+				background-repeat:   no-repeat;
+				background-size:     cover;  
+				border: none;
+			}
+			table
+			{
+				background-color: white;
+			}
+		</style>
+		<script src="http://code.jquery.com/jquery-1.6.4.min.js" type="text/javascript"></script>
+		<script>
+			var aereo_nemico = new Worker("aereo_nemico.js");		//creazione aereo nemico
+			
+			var aereo_nemicoPos = {						//posizioni di partenza aereo nemico
+			"x": 2,
+			"y": 5
+			};
+			
+			var aereoPos = {						//creo json con posizioni di partenza aereo
+			"x": 13,
+			"y": Math.floor(Math.random() * 10)
+			};
+			
+			var id = "#" + aereo_nemicoPos.x +"-"+ aereo_nemicoPos.y;			//creo id iniziale per accedere alle caselle
+			var id1 = "#" + aereoPos.x +"-"+ aereoPos.y;				//creo id iniziale per accedere alle caselle
+			var soldi=0;
+			
+			aereo_nemico.onmessage = function(event) {	//imposto listener per il webworker
+				
+				$(id).css("background-image","none");				//cancello casella precedente
+				aereo_nemicoPos = event.data;
+				id = "#" + aereo_nemicoPos.x +"-"+ aereo_nemicoPos.y;
+				$(id).css("background-image",'url("7.jpg")');	//imposto nuova casella
+			};
+			
+			//crea worker
+			proiettile = new Worker('proiettile.js');
+						
+			var id3 = "#" + 10+"-"+ 5;			//creo id iniziale per accedere alle caselle
+						
+			//riceve da worker
+			proiettile.addEventListener('message', function(e){
+				$(id3).css("background-image","none");				//cancello casella precedente
+				proiettilePos = e.data;
+				id3 = "#" + e.data.x +"-"+ e.data.y;
+				
+				if(e.data.x == aereo_nemicoPos.x && e.data.y == aereo_nemicoPos.y){
+					soldi=soldi+50;
+					if(soldi>499){
+						alert("Hai vinto");
+						soldi=0;
+					}
+					document.getElementById("pt").innerHTML=soldi;
+				}
+					
+				if(e.data.x >0){
+					$(id3).css("background-image",'url("9.jpg")');	//imposto nuova casella
+					
+				}
+			});	
+		</script>
+	</head>
+	<body>
+		<p style="color: red; font-size:20px">punti totali: <span id="pt"></span>
+		<p style="color: red; font-size:20px">Obbiettivo: 500<span id="p"></span>
+		<center>
+			<table>
+				<caption style="color: red; font-size:25px">GUERRA AEREA</caption>
+				<script type="text/javascript">
+				var i, j;
+				var punteggio = 0;
+				
+				//stampo tabella di gioco
+				for(i = 0; i < 15; i++)
+				{
+					document.write("<tr>");
+					for(j = 0; j < 10; j++)
+					{
+						document.write("<td id='"+ i +"-"+ j +"'>");
+						document.write("</td>");
+					}
+					document.write("</tr>");
+				}
+				
+				//stampo aereo in pos iniziale
+				$(id1).css("background-image",'url("11.jpg")');
+				
+				//listener per la pressione delle freccette e per spostare l'aereo
+				document.addEventListener("keydown", event => {
+					//freccia sinistra
+					if (event.keyCode == 37)
+					{
+						if(aereoPos.y-1 >= 0)
+						{
+							$(id1).css("background-image","none");
+							aereoPos.y--;
+							id1 = "#" + aereoPos.x +"-"+ aereoPos.y;
+							$(id1).css("background-image",'url("11.jpg")');
+						}
+					}
+					//freccia destra
+					if (event.keyCode == 39)
+					{
+						if(aereoPos.y+1 <= 9)
+						{
+							$(id1).css("background-image","none");
+							aereoPos.y++;
+							id1 = "#" + aereoPos.x +"-"+ aereoPos.y;
+							$(id1).css("background-image",'url("11.jpg")');
+						}
+					}	
+					//stampo proiettile
+					if (event.keyCode == 32)
+					{
+						let proiettilePos = {						//posizioni di partenza
+							x: aereoPos.x,
+							y: aereoPos.y,
+						};
+						
+						//invia coordinate al web worker
+						proiettile.postMessage(proiettilePos);
+						
+					}	
+				});
+				</script>
+			</table>
+		</center>
+	</body>
+</html>
